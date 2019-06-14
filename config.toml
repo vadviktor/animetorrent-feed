@@ -1,0 +1,21 @@
+anti_hammer_sleep = 5
+torrent_pages_to_scan = 5
+exclude_categories = ["Manga", "Novel", "Doujin"]
+
+[secretsmanager]
+secret_name = "animetorrents/credentials"
+region = 'eu-west-1'
+
+[site]
+login_url = "https://animetorrents.me/login.php"
+torrents_url = "https://animetorrents.me/torrents.php"
+torrent_list_url = "https://animetorrents.me/ajax/torrents_data.php?total={max}&page={current}"
+torrent_techspec_url = 'https://animetorrents.me/ajax/torrent-techspecs.php?torid={}'
+torrent_filelist_url = 'https://animetorrents.me/ajax/torrent-filelist.php?infohash={}'
+
+[s3]
+bucket = 'vadviktor-anime-torrents'
+region = 'eu-west-1'
+object_url = "https://{bucket}.s3-{region}.amazonaws.com/{filekey}"
+feed_filename_development= 'test.xml'
+feed_filename_production = 'atom.xml'
