@@ -30,7 +30,7 @@ class TimeOutException(Exception):
 class Spider:
     def __init__(self):
         self.config = toml.load("config.toml")
-        self.environment = getenv("environment", "development")
+        self.environment = getenv("SENTRY_ENVIRONMENT", "development")
 
         loglevel = logging.DEBUG
         if self.environment == "production":
@@ -45,6 +45,7 @@ class Spider:
         sentry_sdk.init(
             "https://f9af5d4b88bb4df1a182849a4387c61e@sentry.io/1078203",
             environment=self.environment,
+            release=getenv("SENTRY_RELEASE", "0.0.0"),
         )
 
         self.feed = FeedGenerator()
