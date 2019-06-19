@@ -31,6 +31,7 @@ class Spider:
     def __init__(self):
         self.config = toml.load("config.toml")
         self.environment = getenv("SENTRY_ENVIRONMENT", "development")
+        self.version = getenv("SENTRY_RELEASE", "0.0.0")
 
         loglevel = logging.DEBUG
         if self.environment == "production":
@@ -45,7 +46,7 @@ class Spider:
         sentry_sdk.init(
             "https://f9af5d4b88bb4df1a182849a4387c61e@sentry.io/1078203",
             environment=self.environment,
-            release=getenv("SENTRY_RELEASE", "0.0.0"),
+            release=self.version,
         )
 
         self.feed = FeedGenerator()
@@ -200,7 +201,9 @@ class Spider:
 
         atomfeed = self.feed.atom_str()
         bucket = self.config["s3"]["bucket"]
-        key = self.config["s3"][f"feed_filename_{self.environment}"]
+        key = self.config["s3"][f"feed_filename_{self.environment}"].format(
+            version=self.version
+        )
         self.s3.upload_fileobj(BytesIO(atomfeed), bucket, key)
         resp = self.s3.put_object_acl(ACL="public-read", Bucket=bucket, Key=key)
         if resp is None:

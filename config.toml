@@ -17,5 +17,5 @@ torrent_filelist_url = 'https://animetorrents.me/ajax/torrent-filelist.php?infoh
 bucket = 'vadviktor-anime-torrents'
 region = 'eu-west-1'
 object_url = "https://{bucket}.s3-{region}.amazonaws.com/{filekey}"
-feed_filename_development= 'test.xml'
-feed_filename_production = 'atom.xml'
+feed_filename_development= 'test-xxx.xml'
+feed_filename_production = 'atom-{version}.xml'
