@@ -277,6 +277,10 @@ class Spider:
         self._anti_hammer_sleep()
         resp = self.session.get(url, **kwargs)
 
+        # this site uses CloudFlare and could get gateway error, but can be retried
+        if resp.status_code == 502:
+            raise TimeOutException
+
         if resp.status_code == 504:
             raise TimeOutException
 
