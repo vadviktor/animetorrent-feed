@@ -272,7 +272,7 @@ class Spider:
 
         return profile_data
 
-    @retry(TimeOutException, tries=5, delay=3, backoff=2)
+    @retry((TimeOutException, ConnectionError), tries=5, delay=3, backoff=2)
     def _get(self, url, **kwargs) -> Response:
         self._anti_hammer_sleep()
         resp = self.session.get(url, **kwargs)
