@@ -31,7 +31,8 @@ class Spider:
     def __init__(self):
         self.config = toml.load("config.toml")
         self.environment = getenv("SENTRY_ENVIRONMENT", "development")
-        self.version = getenv("SENTRY_RELEASE", "0.0.0")
+        with open("version.txt", "r") as f:
+            self.version = f.readline()
 
         loglevel = logging.DEBUG
         if self.environment == "production":
