@@ -1,6 +1,6 @@
 anti_hammer_sleep = 5
 torrent_pages_to_scan = 2
-exclude_categories = ["Manga", "Novel", "Doujin"]
+exclude_categories = ["Manga", "Manga 18+", "Novel", "Light Novel", "Doujin"]
 
 [secretsmanager]
 secret_name = "animetorrents/credentials"

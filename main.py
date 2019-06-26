@@ -127,7 +127,7 @@ class Spider:
             if profile_data is None:
                 continue
 
-            fe = self.feed.add_entry()
+            fe = self.feed.add_entry(order="append")
             fe.id(profile_url)
             fe.title(profile_data["title"])
             fe.link(href=profile_url, rel="self")
