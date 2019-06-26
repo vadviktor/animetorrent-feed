@@ -29,10 +29,10 @@ class TimeOutException(Exception):
 
 class Spider:
     def __init__(self):
+        self.config = toml.load("config.toml")
         self.aws_session = boto3.session.Session()
         self.signal_run()
 
-        self.config = toml.load("config.toml")
         self.environment = getenv("SENTRY_ENVIRONMENT", "development")
         with open("version.txt", "r") as f:
             self.version = f.readline().strip()
