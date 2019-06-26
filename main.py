@@ -29,10 +29,13 @@ class TimeOutException(Exception):
 
 class Spider:
     def __init__(self):
+        self.aws_session = boto3.session.Session()
+        self.signal_run()
+
         self.config = toml.load("config.toml")
         self.environment = getenv("SENTRY_ENVIRONMENT", "development")
         with open("version.txt", "r") as f:
-            self.version = f.readline()
+            self.version = f.readline().strip()
 
         loglevel = logging.DEBUG
         if self.environment == "production":
@@ -52,7 +55,6 @@ class Spider:
 
         self.feed = FeedGenerator()
         self.session = HTMLSession()
-        self.aws_session = boto3.session.Session()
         self.s3 = self.aws_session.client(service_name="s3")
 
     def _anti_hammer_sleep(self):
@@ -101,7 +103,7 @@ class Spider:
     def crawl(self):
         self._login()
 
-        self.feed.id("vadviktor.xyz")
+        self.feed.id(f"{self.version}.vadviktor.xyz")
         self.feed.updated(datetime.utcnow().isoformat("T") + "Z")
         self.feed.author(
             {
@@ -476,6 +478,13 @@ class Spider:
         """
         key = f"torrents/{publish_date.year}/{publish_date.month}/{filename}_{torid}.torrent"
         return self._upload(key, url)
+
+    def signal_run(self):
+        cloudwatch = self.aws_session.client(service_name="cloudwatch")
+        cloudwatch.put_metric_data(
+            Namespace="Animetorrents",
+            MetricData=[{"MetricName": "execution", "Value": 0.0}],
+        )
 
 
 if __name__ == "__main__":
