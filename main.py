@@ -229,7 +229,10 @@ class Spider:
         profile_data["category"] = resp.html.find("h1.headline img", first=True).attrs[
             "alt"
         ]
-        if profile_data["category"] in self.config["exclude_categories"]:
+        if any(
+            category in profile_data["category"]
+            for category in self.config["exclude_categories"]
+        ):
             return None
 
         profile_data["torid"] = re.match(r".*=(\d+)$", profile_url)[1]
