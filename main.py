@@ -480,7 +480,10 @@ class Spider:
         return self._upload(key, url)
 
     def signal_run(self):
-        cloudwatch = self.aws_session.client(service_name="cloudwatch")
+        cloudwatch = self.aws_session.client(
+            service_name="cloudwatch",
+            region_name=self.config["secretsmanager"]["region"],
+        )
         cloudwatch.put_metric_data(
             Namespace="Animetorrents",
             MetricData=[{"MetricName": "execution", "Value": 0.0}],
