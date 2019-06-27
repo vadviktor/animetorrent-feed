@@ -284,10 +284,7 @@ class Spider:
         resp = self.session.get(url, **kwargs)
 
         # this site uses CloudFlare and could get gateway error, but can be retried
-        if resp.status_code == 502:
-            raise TimeOutException
-
-        if resp.status_code == 504:
+        if resp.status_code in [502, 504, 524]:
             raise TimeOutException
 
         return resp
