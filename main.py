@@ -205,7 +205,7 @@ class Spider:
         atomfeed = self.feed.atom_str()
         bucket = self.config["s3"]["bucket"]
         key = self.config["s3"][f"feed_filename_{self.environment}"].format(
-            version=self.version
+            version=getenv("FEED_VERSION", "v0")
         )
         self.s3.upload_fileobj(BytesIO(atomfeed), bucket, key)
         resp = self.s3.put_object_acl(ACL="public-read", Bucket=bucket, Key=key)
