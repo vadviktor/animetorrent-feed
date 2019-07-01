@@ -31,11 +31,16 @@ class Spider:
     def __init__(self):
         self.config = toml.load("config.toml")
         self.aws_session = boto3.session.Session()
-        self.signal_run()
+        self.cloudwatch = self.aws_session.client(
+            service_name="cloudwatch",
+            region_name=self.config["secretsmanager"]["region"],
+        )
+        self._report_execution()
+        self.metric_retry_count = 0
 
         self.environment = getenv("SENTRY_ENVIRONMENT", "development")
         with open("version.txt", "r") as f:
-            self.version = f.readline().strip()
+            self.version = f"animetorrent@{f.readline().strip()}"
 
         loglevel = logging.DEBUG
         if self.environment == "production":
@@ -179,6 +184,7 @@ class Spider:
             content_lines.append(
                 f'<p><a href="{torrent_public_url}" target="blank">Download</a></p>'
             )
+            content_lines.append(f'<p>{profile_data["torrent_details"]}</p>')
             content_lines.append(f'<p>{profile_data["file_list"]}</p>')
 
             if profile_data["media_info"] is not None:
@@ -187,6 +193,7 @@ class Spider:
             fe.content(self._valid_xhtml_content(content_lines), type="xhtml")
 
         self._upload_feed()
+        self._report_retry_count()
 
     @staticmethod
     def _valid_xhtml_content(content_lines: List) -> str:
@@ -256,6 +263,9 @@ class Spider:
         profile_data["publish_date"] = self._parse_publish_date(
             resp.html.find("div.ribbon span.blogDate", first=True).text
         )
+        profile_data["torrent_details"] = resp.html.find(
+            "#tabs-1 table.dataTable", first=True
+        ).html
         profile_data["media_info"] = self._download_media_info(profile_data["torid"])
         profile_data["file_list"] = self._download_file_list(profile_data["hashid"])
 
@@ -285,6 +295,7 @@ class Spider:
 
         # this site uses CloudFlare and could get gateway error, but can be retried
         if resp.status_code in [502, 504, 522, 524]:
+            self.metric_retry_count += 1
             raise TimeOutException
 
         return resp
@@ -315,6 +326,7 @@ class Spider:
         )
         resp = self._get(url=url, headers=headers)
         if resp.status_code == 504:
+            self.metric_retry_count += 1
             raise TimeOutException
 
         logging.debug(f"response status code {resp.status_code}")
@@ -479,14 +491,16 @@ class Spider:
         key = f"torrents/{publish_date.year}/{publish_date.month}/{filename}_{torid}.torrent"
         return self._upload(key, url)
 
-    def signal_run(self):
-        cloudwatch = self.aws_session.client(
-            service_name="cloudwatch",
-            region_name=self.config["secretsmanager"]["region"],
-        )
-        cloudwatch.put_metric_data(
+    def _report_execution(self):
+        self.cloudwatch.put_metric_data(
             Namespace="Animetorrents",
             MetricData=[{"MetricName": "execution", "Value": 0.0}],
+        )
+
+    def _report_retry_count(self):
+        self.cloudwatch.put_metric_data(
+            Namespace="Animetorrents",
+            MetricData=[{"MetricName": "retries", "Value": self.metric_retry_count}],
         )
 
 
