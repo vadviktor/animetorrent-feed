@@ -27,6 +27,10 @@ class TimeOutException(Exception):
     pass
 
 
+# this site uses CloudFlare and could get gateway error, but can be retried
+TIMEOUT_STATUS_CODES = [502, 504, 522, 524]
+
+
 class Spider:
     def __init__(self):
         self.config = toml.load("config.toml")
@@ -293,8 +297,7 @@ class Spider:
         self._anti_hammer_sleep()
         resp = self.session.get(url, **kwargs)
 
-        # this site uses CloudFlare and could get gateway error, but can be retried
-        if resp.status_code in [502, 504, 522, 524]:
+        if resp.status_code in TIMEOUT_STATUS_CODES:
             self.metric_retry_count += 1
             raise TimeOutException
 
@@ -325,7 +328,7 @@ class Spider:
             max=max_pages, current=current_page
         )
         resp = self._get(url=url, headers=headers)
-        if resp.status_code == 504:
+        if resp.status_code in TIMEOUT_STATUS_CODES:
             self.metric_retry_count += 1
             raise TimeOutException
 
@@ -337,6 +340,7 @@ class Spider:
 
         return resp
 
+    @retry(TimeOutException, tries=5, delay=3, backoff=2)
     def _login(self):
         login_url = self.config["site"]["login_url"]
         username = self._secrets()["username"]
@@ -348,16 +352,26 @@ class Spider:
             data={"form": "login", "username": username, "password": password},
         )
 
+        if resp.status_code in TIMEOUT_STATUS_CODES:
+            self.metric_retry_count += 1
+            raise TimeOutException
+
         if "Error: Invalid username or password." in resp.text:
             raise RuntimeError("login failed because of invalid credentials")
         else:
             logging.debug("logged in")
 
+    @retry(TimeOutException, tries=5, delay=3, backoff=2)
     def _max_pages(self):
         logging.debug("finding out torrents max page number")
 
         try:
             resp = self._get(self.config["site"]["torrents_url"])
+
+            if resp.status_code in TIMEOUT_STATUS_CODES:
+                self.metric_retry_count += 1
+                raise TimeOutException
+
             if resp.status_code != 200:
                 raise RuntimeError("the torrents page is not responding correctly")
 
