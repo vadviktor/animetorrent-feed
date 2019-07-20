@@ -44,7 +44,7 @@ class Spider:
 
         self.environment = getenv("SENTRY_ENVIRONMENT", "development")
         with open("version.txt", "r") as f:
-            self.version = f"animetorrent@{f.readline().strip()}"
+            self.version = f.readline().strip()
 
         loglevel = logging.DEBUG
         if self.environment == "production":
