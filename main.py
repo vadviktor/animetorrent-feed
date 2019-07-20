@@ -42,7 +42,7 @@ class Spider:
         self._report_execution()
         self.metric_retry_count = 0
 
-        self.environment = getenv("SENTRY_ENVIRONMENT", "development")
+        self.environment = getenv("APP_ENVIRONMENT", "development")
         with open("version.txt", "r") as f:
             self.version = f.readline().strip()
 
@@ -57,7 +57,7 @@ class Spider:
         )
 
         sentry_sdk.init(
-            "https://f9af5d4b88bb4df1a182849a4387c61e@sentry.io/1078203",
+            "https://5240fdc8eda54c60838667c7abc267e8@sentry.io/1509686",
             environment=self.environment,
             release=self.version,
         )
