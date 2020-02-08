@@ -1,0 +1,28 @@
+{
+  "anti_hammer_sleep": 5,
+  "torrent_pages_to_scan": 2,
+  "exclude_categories": [
+    "Manga",
+    "Novel",
+    "Doujin",
+    "Doujinshi"
+  ],
+  "site": {
+    "username": "",
+    "password": "",
+    "login_url": "https://animetorrents.me/login.php",
+    "torrents_url": "https://animetorrents.me/torrents.php",
+    "torrent_list_url": "https://animetorrents.me/ajax/torrents_data.php?total",
+    "torrent_techspec_url": "https://animetorrents.me/ajax/torrent-techspecs.php?torid",
+    "torrent_filelist_url": "https://animetorrents.me/ajax/torrent-filelist.php?infohash"
+  },
+  "s3": {
+    "key": "",
+    "secret": "",
+    "bucket": "vadviktor-anime-torrents",
+    "region": "eu-west-1",
+    "object_url": "https://{bucket}.s3-{region}.amazonaws.com/{filekey}",
+    "feed_filename_development": "test-xxx.xml",
+    "feed_filename_production": "atom-{version}.xml"
+  }
+}

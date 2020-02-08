@@ -1,8 +1,7 @@
 requests-html
-sentry-sdk
-toml
 boto3
 feedgen
 python-slugify<4
 retry<1
-lxml<4.4
+python-dateutil<2.8.1
+defusedxml

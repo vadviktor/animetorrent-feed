@@ -1,0 +1,10 @@
+# If not running interactively, don't do anything
+[[ $- != *i* ]] && return
+
+export TERM=xterm-256color
+
+alias l="ls -lF"
+alias ll="ls -laF"
+
+export XDG_CONFIG_HOME="/root"
+export PYTHONSTARTUP="/root/.pythonrc.py"

@@ -1,0 +1,14 @@
+---
+version: "3.7"
+services:
+  anime-feed:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/workspace:cached
+      - mypy_cache:/workspace/.mypy_cache
+    command: sleep infinity
+
+volumes:
+  mypy_cache:

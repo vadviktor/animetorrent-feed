@@ -1,0 +1,7 @@
+black
+mypy
+ptpython
+ipython
+bandit
+flake8
+isort
